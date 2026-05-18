@@ -1,18 +1,19 @@
 name: 天气资讯推送
 on:
-  schedule:
-    - cron: "0 23 * * *"
   workflow_dispatch:
+  schedule:
+    - cron: '0 23 * * *'
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-      - run: pip install requests
-      - run: python push.py
+      - name: Run script
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3 python3-pip
+          pip3 install requests
+          python3 push.py
         env:
           SENDKEY: ${{ secrets.SENDKEY }}
