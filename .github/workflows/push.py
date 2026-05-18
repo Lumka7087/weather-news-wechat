@@ -19,6 +19,6 @@ news_text = "📰 今日资讯\n" + "\n".join([f"• {item}" for item in news_re
 # 3. 合并内容
 content = f"☀️ 每日天气资讯\n\n{weather_text}\n\n{news_text}"
 
-# 4. Qmsg 免费推送（无需实名）
-push_url = f"https://qmsg.zendee.cn/send?msg={content}&key={QMSG}"
-requests.get(push)
+# 4. Server酱 Turbo
+push_url = f"https://sctapi.ftqq.com/{SENDKEY}.send?title=每日推送&desp={content}"
+requests.post(push))
