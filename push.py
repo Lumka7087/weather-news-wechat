@@ -1,23 +1,34 @@
 import requests
 import os
+import sys
 
-# 配置
-SENDKEY = os.getenv("SENDKEY")
-CITY_CODE = "101240105"  # 进贤
+def main():
+    try:
+        sendkey = os.environ.get("SENDKEY", "")
+        if not sendkey:
+            print("未配置SENDKEY")
+            return
 
-# 获取天气
-weather_url = f"https://devapi.qweather.com/v7/weather/3d?location={CITY_CODE}&key=HE10000000000000000000000000"
-weather = requests.get(weather_url).json()["daily"][0]
-weather_text = f"🌤️ 进贤今日天气\n{weather['tempMin']}℃ ~ {weather['tempMax']}℃\n{weather['textDay']}"
+        city = "101240105"
+        weather_url = f"https://devapi.qweather.com/v7/weather/now?location={city}&key=HEaa99999999999999999999999999999"
 
-# 获取资讯
-news_data = requests.get("https://60s.viki.moe/?v2").json()
-news_list = news_data["news"][:5]
-news_text = "📰 今日资讯\n" + "\n".join(f"• {item}" for item in news_list)
+        weather = requests.get(weather_url, timeout=10).json()
+        now = weather.get("now", {})
+        weather_text = f"🌤️ 进贤实时天气\n温度：{now.get('temp','--')}℃\n天气：{now.get('text','--')}"
 
-# 推送微信
-content = f"{weather_text}\n\n{news_text}"
-push_url = f"https://sctapi.ftqq.com/{SENDKEY}.send?title=☀️每日天气资讯&desp={content}"
-requests.post(push_url)
+        news_url = "https://60s.viki.moe/?v2"
+        news_data = requests.get(news_url, timeout=10).json()
+        news = news_data.get("news", [])[:5]
+        news_text = "📰 今日资讯\n" + "\n".join(f"• {n}" for n in news)
 
-print("✅ 推送成功！")
+        content = f"{weather_text}\n\n{news_text}"
+        push_url = f"https://sctapi.ftqq.com/{sendkey}.send?title=☀️每日推送&desp={content}"
+        requests.post(push_url, timeout=10)
+
+        print("✅ 推送成功！")
+    except Exception as e:
+        print(f"错误：{e}")
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()
