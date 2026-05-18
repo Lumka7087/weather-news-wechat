@@ -1,0 +1,16 @@
+name: 每日天气资讯推送
+on:
+  schedule:
+    - cron: 0 23 * * *   # 北京时间早7点（UTC 23点）
+  workflow_dispatch:
+
+jobs:
+  push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 运行推送脚本
+        uses: actions/setup-python@v4
+      - run: python3 push.py
+        env:
+          PUSHPLUS_TOKEN: ${{ secrets.PUSHPLUS_TOKEN }}
+          CITY_CODE: ${{ secrets.CITY_CODE }}
