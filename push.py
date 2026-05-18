@@ -1,34 +1,44 @@
 import requests
 import os
-import sys
 
-def main():
-    try:
-        sendkey = os.environ.get("SENDKEY", "")
-        if not sendkey:
-            print("未配置SENDKEY")
-            return
+# 读取配置
+SENDKEY = os.getenv("SENDKEY")
 
-        city = "101240105"
-        weather_url = f"https://devapi.qweather.com/v7/weather/now?location={city}&key=HEaa99999999999999999999999999999"
+# 进贤 101240105
+city_code = "101240105"
 
-        weather = requests.get(weather_url, timeout=10).json()
-        now = weather.get("now", {})
-        weather_text = f"🌤️ 进贤实时天气\n温度：{now.get('temp','--')}℃\n天气：{now.get('text','--')}"
+# 1. 获取天气（改用稳定免费接口）
+def get_weather(city):
+    url = f"http://wthrcdn.etouch.cn/weather_mini?citykey={city}"
+    res = requests.get(url, timeout=10).json()
+    data = res.get("data", {})
+    today = data.get("forecast", [])[0]
+    w_text = (
+        f"🌤️ 进贤今日天气\n"
+        f"日期：{today.get('date')}\n"
+        f"温度：{today.get('low')} ~ {today.get('high')}\n"
+        f"天气：{today.get('type')}\n"
+        f"风向风力：{today.get('fengxiang')} {today.get('fengli')}"
+    )
+    return w_text
 
-        news_url = "https://60s.viki.moe/?v2"
-        news_data = requests.get(news_url, timeout=10).json()
-        news = news_data.get("news", [])[:5]
-        news_text = "📰 今日资讯\n" + "\n".join(f"• {n}" for n in news)
+# 2. 获取60秒资讯
+def get_news():
+    news_res = requests.get("https://60s.viki.moe/?v2", timeout=10).json()
+    news_list = news_res.get("news", [])[:5]
+    txt = "📰 今日热点资讯\n"
+    for item in news_list:
+        txt += f"• {item}\n"
+    return txt
 
-        content = f"{weather_text}\n\n{news_text}"
-        push_url = f"https://sctapi.ftqq.com/{sendkey}.send?title=☀️每日推送&desp={content}"
-        requests.post(push_url, timeout=10)
-
-        print("✅ 推送成功！")
-    except Exception as e:
-        print(f"错误：{e}")
-        sys.exit(1)
-
+# 合并推送
 if __name__ == "__main__":
-    main()
+    try:
+        weather_info = get_weather(city_code)
+        news_info = get_news()
+        all_content = f"{weather_info}\n\n{news_info}"
+        push_api = f"https://sctapi.ftqq.com/{SENDKEY}.send?title=☀️每日天气资讯&desp={all_content}"
+        requests.post(push_api)
+        print("推送完成")
+    except Exception as e:
+        print("出错：",e)
