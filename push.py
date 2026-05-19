@@ -41,12 +41,18 @@ def get_weather():
 
 def get_news():
     """获取 60 秒热点资讯"""
-    news_res = requests.get("https://60s.viki.moe/?v2", timeout=10).json()
-    news_list = news_res.get("news", [])[:5]
-    txt = "📰 今日热点资讯\n"
-    for item in news_list:
-        txt += f"• {item}\n"
-    return txt
+    try:
+        news_res = requests.get("https://60s.viki.moe/v2/60s", timeout=10).json()
+        # 新版 API 数据结构：data.news
+        news_list = news_res.get("data", {}).get("news", [])[:5]
+        if not news_list:
+            news_list = news_res.get("news", [])[:5]  # 兼容旧版
+        txt = "📰 今日热点资讯\n"
+        for item in news_list:
+            txt += f"• {item}\n"
+        return txt
+    except Exception as e:
+        return f"📰 今日热点资讯\n获取失败：{e}"
 
 if __name__ == "__main__":
     try:
