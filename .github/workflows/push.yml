@@ -2,7 +2,7 @@ name: 天气资讯推送
 
 on:
   schedule:
-    - cron: '30 9 * * *'   # 每天早上9:30定时推送
+    - cron: '00 7 * * *'   # 每天早上9:30定时推送
   workflow_dispatch:
 
 jobs:
