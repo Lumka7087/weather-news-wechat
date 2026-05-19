@@ -1,13 +1,20 @@
 name: 天气资讯推送
+
 on:
-  workflow_dispatch
+  schedule:
+    - cron: '30 9 * * *'   # 每天早上9:30定时推送
+  workflow_dispatch:
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
       - run: pip install requests
-      - run: python push.py
+      - name: 执行推送脚本
+        run: python push.py
         env:
-          SENDB: ${{ secrets.SENDB }}
-          WEATHER_KEY: ${{ secrets.WEATHER_KEY }}
+          SENDKEY: ${{ secrets.SENDKEY }}
