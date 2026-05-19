@@ -33,12 +33,9 @@ def get_weather():
     weather_desc = weather_map.get(code, f"🌡 {code}")
 
     return (
-        f"🌤️ 进贤今日天气
-"
-        f"日期：{date}
-"
-        f"温度：{t_min}°C ~ {t_max}°C
-"
+        f"🌤️ 进贤今日天气\n"
+        f"日期：{date}\n"
+        f"温度：{t_min}°C ~ {t_max}°C\n"
         f"天气：{weather_desc}"
     )
 
@@ -46,20 +43,16 @@ def get_news():
     """获取 60 秒热点资讯"""
     news_res = requests.get("https://60s.viki.moe/?v2", timeout=10).json()
     news_list = news_res.get("news", [])[:5]
-    txt = "📰 今日热点资讯
-"
+    txt = "📰 今日热点资讯\n"
     for item in news_list:
-        txt += f"• {item}
-"
+        txt += f"• {item}\n"
     return txt
 
 if __name__ == "__main__":
     try:
         weather_info = get_weather()
         news_info = get_news()
-        all_content = f"{weather_info}
-
-{news_info}"
+        all_content = f"{weather_info}\n\n{news_info}"
 
         push_url = f"https://sctapi.ftqq.com/{SENDKEY}.send"
         requests.post(push_url, data={
